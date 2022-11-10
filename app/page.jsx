@@ -1,57 +1,95 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import React from "react";
+import Image from 'next/image';
+import styles from './page.module.css';
+import Die from "./(components)/Die";
+import { nanoid } from "nanoid";
+import { useWindowSize } from "react-use";
+import ReactConfetti from "react-confetti";
 
 export default function Home() {
-  return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js 13!</a>
-        </h1>
+	const [dice, setDice] = React.useState([{ id: nanoid() }]);
+	const [tenzies, setTenzies] = React.useState(false);
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
+	React.useEffect(() => {
+		setDice(allNewDice);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
-        <div className={styles.grid}>
-          <a href="https://beta.nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js 13</p>
-          </a>
+	React.useEffect(() => {
+		const allHeld = dice.every(die => die.isHeld);
+		const valueReference = dice[0].value;
+		const allSameValue = dice.every(die => die.value == valueReference);
+		if (allHeld && allSameValue) {
+			setTenzies(true);
+			console.log("You won!");
+		}
+	}, [dice]);
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Explore the Next.js 13 playground.</p>
-          </a>
+	function generateNewDie() {
+		return (
+			{
+				id: nanoid(),
+				value: Math.ceil(Math.random() * 6),
+				isHeld: false
+			}
+		);
+	}
 
-          <a
-            href="https://vercel.com/templates/next.js/app-directory?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>Deploy your Next.js site to a public URL with Vercel.</p>
-          </a>
-        </div>
-      </main>
+	function allNewDice() {
+		const newDice = [];
+		for (let i = 1; i <= 10; i++) {
+			newDice.push(generateNewDie());
+		}
+		return newDice;
+	}
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
-  )
+	function rollDice() {
+		if (!tenzies) {
+			setDice(oldDice => oldDice.map(die => {
+				return die.isHeld ? die : generateNewDie();
+			}));
+
+		} else {
+			setTenzies(false);
+			setDice(allNewDice());
+		}
+
+	}
+
+	function holdDice(id) {
+		if (!tenzies) {
+			setDice(oldDice => oldDice.map(die => {
+				return die.id == id ? { ...die, isHeld: !die.isHeld } : die;
+			}));
+		}
+	}
+
+	const diceElements = dice.map(die => {
+		return (
+			<Die
+				key={die.id}
+				value={die.value}
+				isHeld={die.isHeld}
+				holdDice={() => holdDice(die.id)}
+			/>
+		);
+	});
+
+	const { width, height } = useWindowSize();
+	return (
+		<main className={styles.main}>
+			{tenzies ? <ReactConfetti width={width} height={height} /> : ""}
+			<h1>{tenzies ? "You Won!" : "Tenzies"}</h1>
+			<p>
+				Roll until all dice are the same. Click
+				each die to freeze it at its current value
+				between rolls.
+			</p>
+			<div className={styles.diceContainer}>
+				{diceElements}
+			</div>
+			<button onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
+		</main>
+	);
 }

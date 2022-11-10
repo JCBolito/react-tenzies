@@ -1,0 +1,12 @@
+.die {
+	width: 3.5rem;
+	height: 3.5rem;
+	font-size: 1.5rem;
+	font-weight: bold;
+	border-radius: 0.5rem;
+	box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.322);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
