@@ -16,6 +16,7 @@ export default function Die(props) {
 				src={props.image}
 				alt={props.value}
 				fill
+				priority
 				sizes="(max-width: 3.5rem)"
 			/>
 		</div>
