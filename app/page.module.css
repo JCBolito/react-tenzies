@@ -39,6 +39,7 @@
 	border: 0;
 	border-radius: 0.5rem;
 	cursor: pointer;
+	margin-top: 2rem;
 }
 
 /* @media (max-width: 600px) {

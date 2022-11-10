@@ -8,8 +8,18 @@ import { useWindowSize } from "react-use";
 import ReactConfetti from "react-confetti";
 
 export default function Home() {
-	const [dice, setDice] = React.useState([{ id: nanoid() }]);
+	const [dice, setDice] = React.useState(
+		[
+			{
+				id: nanoid(),
+				value: 1,
+				image: "/d1.png",
+				isHeld: false
+			}
+		]
+	);
 	const [tenzies, setTenzies] = React.useState(false);
+	const [rolls, setRolls] = React.useState(0);
 
 	React.useEffect(() => {
 		setDice(allNewDice);
@@ -27,10 +37,12 @@ export default function Home() {
 	}, [dice]);
 
 	function generateNewDie() {
+		const value = Math.ceil(Math.random() * 6);
 		return (
 			{
 				id: nanoid(),
-				value: Math.ceil(Math.random() * 6),
+				value: value,
+				image: `/d${value}.png`,
 				isHeld: false
 			}
 		);
@@ -46,6 +58,7 @@ export default function Home() {
 
 	function rollDice() {
 		if (!tenzies) {
+			setRolls(rolls + 1);
 			setDice(oldDice => oldDice.map(die => {
 				return die.isHeld ? die : generateNewDie();
 			}));
@@ -53,6 +66,7 @@ export default function Home() {
 		} else {
 			setTenzies(false);
 			setDice(allNewDice());
+			setRolls(0);
 		}
 
 	}
@@ -70,6 +84,7 @@ export default function Home() {
 			<Die
 				key={die.id}
 				value={die.value}
+				image={die.image}
 				isHeld={die.isHeld}
 				holdDice={() => holdDice(die.id)}
 			/>
@@ -89,6 +104,7 @@ export default function Home() {
 			<div className={styles.diceContainer}>
 				{diceElements}
 			</div>
+			<p>Rolls: {rolls}</p>
 			<button onClick={rollDice}>{tenzies ? "New Game" : "Roll"}</button>
 		</main>
 	);
